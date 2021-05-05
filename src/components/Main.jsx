@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import WordItm from './WordItm';
-import { Button, Form } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import Logo from '../logo.svg';
+import Filter from 'bad-words';
+const filter = new Filter();
 
 function Main() {
 
   const [words, setWords] = useState([]);
-  const [newWord, setNewWord] = useState();
+  const [newWord, setNewWord] = useState('');
 
   const save = (wordsArray) => {
     setWords(wordsArray);
     localStorage.setItem('words', JSON.stringify(wordsArray));
+    document.getElementById('newWordId').focus();
   }
 
   const removeWord = (word) => {
@@ -24,10 +27,22 @@ function Main() {
   }
 
   const addWord = () => {
-    if (!newWord) {return; }
-    const wordsArray = [...words];
-    wordsArray.push(newWord);
+    if (!newWord) { return; }
+    let validWord = true;
+    if (newWord.indexOf('*') !== -1) {
+      validWord = false;
+    }
+    let cleanWord = filter.clean(newWord);
+    if (cleanWord.indexOf('*') !== -1) {
+      validWord = false;
+    }
     setNewWord('');
+    if (!validWord) {
+      document.getElementById('newWordId').focus();
+      return;
+    }
+    const wordsArray = [...words];
+    wordsArray.push(cleanWord);
     save(wordsArray);
   }
 
@@ -50,15 +65,24 @@ function Main() {
 
   return (
     <div className="Main">
-      <h1><img src={Logo} alt="logo" height="48px"/> Beespeller</h1>
+      <h1><img src={Logo} alt="logo" height="48px" /> Beespeller</h1>
       <div className="Controls">
-        <Form.Control type="text" value={newWord} onChange={e => setNewWord(e.target.value)} placeholder="Add new word"/>
-      <br/>
-      <Button variant="secondary" onClick={() => addWord()}>Add Word</Button>
-        &nbsp;&nbsp;
-        <Button variant="success" onClick={() => startGame()}>Start Game</Button>
+        <div class="container">
+          <div class="row">
+            <div class="col">
+              <input id="newWordId" className="form-control" type="text" value={newWord} onChange={e => setNewWord(e.target.value)} placeholder="Add new word" />
+            </div>
+            <div class="col-sm-auto">
+              <Button variant="secondary" onClick={() => addWord()}>Add Word</Button>
+            </div>
+          </div>
+        </div>
+
+
       </div>
       <hr />
+      <Button variant="success" onClick={() => startGame()}>Start Game</Button>
+      <br />
       {wordList}
     </div>
   );

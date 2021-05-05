@@ -10,7 +10,7 @@ function App() {
 
   return (
     <div className="App">
-
+      <center>
       {view && view === 'app' &&
         <div>
           <img src={logo} className="App-logo" alt="logo" />
@@ -21,7 +21,7 @@ function App() {
         </div>
       }
       { view && view === 'main' && <Main/> }
-
+      </center>
     </div>
   );
 }
